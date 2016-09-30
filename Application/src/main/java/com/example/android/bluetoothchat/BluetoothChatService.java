@@ -31,6 +31,7 @@ import com.example.android.common.logger.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.UUID;
 
 /**
@@ -282,6 +283,7 @@ public class BluetoothChatService {
         BluetoothChatService.this.start();
     }
 
+
     /**
      * This thread runs while listening for incoming connections. It behaves
      * like a server-side client. It runs until a connection is accepted
@@ -372,8 +374,8 @@ public class BluetoothChatService {
      * succeeds or fails.
      */
     private class ConnectThread extends Thread {
-        private final BluetoothSocket mmSocket;
-        private final BluetoothDevice mmDevice;
+        private BluetoothSocket mmSocket;
+        private BluetoothDevice mmDevice;
         private String mSocketType;
 
         public ConnectThread(BluetoothDevice device) {
@@ -406,15 +408,29 @@ public class BluetoothChatService {
                 mmSocket.connect();
             } catch (IOException e) {
                 // Close the socket
-                Log.e("ConnectThread",e.toString());
+                Log.e("ConnectThread", e.toString());
                 try {
-                    mmSocket.close();
+                    //mmSocket.close();
+                    try {
+                        mmSocket =(BluetoothSocket) mmDevice.getClass().getMethod("createInsecureRfcommSocket", new Class[] {int.class}).invoke(mmDevice,1);
+                        Log.i("Reflection","Connection created");
+                    } catch (IllegalAccessException e1) {
+                        e1.printStackTrace();
+                    } catch (InvocationTargetException e1) {
+                        e1.printStackTrace();
+                    } catch (NoSuchMethodException e1) {
+                        e1.printStackTrace();
+                    }
+                    mmSocket.connect();
+
+                    Log.e("","Connected");
                 } catch (IOException e2) {
                     Log.e(TAG, "unable to close() " + mSocketType +
                             " socket during connection failure", e2);
+
+                    connectionFailed();
+                    return;
                 }
-                connectionFailed();
-                return;
             }
 
             // Reset the ConnectThread because we're done

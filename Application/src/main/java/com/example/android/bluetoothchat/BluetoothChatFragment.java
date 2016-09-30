@@ -490,8 +490,7 @@ public class BluetoothChatFragment extends Fragment {
             for(int i=0; i<bluetoothDevices.size();i++)
             {
                 connectDevice(bluetoothDevices.get(i));
-
-                // Check that we're actually connected before trying anything
+                
                 if (mChatService.getState() != BluetoothChatService.STATE_CONNECTED) {
                     Toast.makeText(getActivity(), R.string.not_connected, Toast.LENGTH_SHORT).show();
                 }
@@ -518,6 +517,7 @@ public class BluetoothChatFragment extends Fragment {
                     Toast.LENGTH_SHORT).show();
         }
     }
+
     /**
      * Start device discover with the BluetoothAdapter
      */
